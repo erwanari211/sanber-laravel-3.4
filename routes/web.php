@@ -18,3 +18,10 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('pertanyaan', 'PertanyaanController@index')->name('pertanyaan.index');
+Route::get('pertanyaan/create', 'PertanyaanController@create')->name('pertanyaan.create')->middleware('auth');
+Route::post('pertanyaan', 'PertanyaanController@store')->name('pertanyaan.store')->middleware('auth');
+
+Route::get('jawaban/{pertanyaan_id}', 'JawabanController@index')->name('jawaban.index');
+Route::post('jawaban/{pertanyaan_id}', 'JawabanController@store')->name('jawaban.store')->middleware('auth');

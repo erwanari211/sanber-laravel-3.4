@@ -34,6 +34,14 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
 
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('pertanyaan.index') }}">List Pertanyaan</a>
+                      </li>
+
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('pertanyaan.create') }}">Buat Pertanyaan</a>
+                      </li>
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
