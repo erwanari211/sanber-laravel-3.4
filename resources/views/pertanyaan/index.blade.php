@@ -4,44 +4,69 @@
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">List Pertanyaan</div>
+      <h1>List Pertanyaan</h1>
 
-        <div class="card-body">
+      @include('layouts.inc.messages')
 
-          @if ($errors->any())
-            <div class="alert alert-danger">
-              @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-              @endforeach
-            </div>
-          @endif
+      @php
+        $isLoggedIn = false;
+        $userId = null;
+        if (auth()->check()) {
+          $isLoggedIn = true;
+          $userId = auth()->user()->id;
+        }
+      @endphp
 
-          @if (session()->has('successMessage'))
-            <div class="alert alert-success">
-              {{ session('successMessage') }}
-            </div>
-          @endif
+      @if (count($threads))
+        @foreach ($threads as $thread)
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="media mb-2">
+                <img class="d-flex mr-3 img-thumbnail rounded-circle" src="https://api.adorable.io/avatars/50/{{ $thread->user->email }}.png" alt="Generic placeholder image">
+                <div class="media-body">
+                  <h5 class="mt-0">{{ $thread->user->name }}</h5>
+                  <span class="text-muted">{{ $thread->created_at->diffForHumans() }}</span>
+                </div>
+              </div>
 
-          @if (count($threads))
-            @foreach ($threads as $thread)
               <h3>
-                <a href="{{ route('jawaban.index', $thread->id) }}">
+                <a href="{{ route('pertanyaan.show', $thread->id) }}">
                   {{ $thread->title }}
                 </a>
               </h3>
-              <small class="text-muted">Oleh {{ $thread->user->name }} - {{ $thread->created_at->diffForHumans() }}</small>
               <p>
                 {{ $thread->content }}
               </p>
-              <hr>
-            @endforeach
 
-            {{ $threads->links() }}
-          @endif
+              <div class="row">
+                <div class="col-sm-4">
+                  <span class="text-muted">
+                    {{ $thread->replies_count }}
+                    Jawaban
+                  </span>
+                </div>
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4"></div>
+              </div>
 
-        </div>
-      </div>
+              @if ($isLoggedIn && $thread->user_id == $userId)
+                <div class="mt-4">
+                  <a class="btn btn-success btn-sm" href="{{ route('pertanyaan.edit', $thread->id) }}">Edit</a>
+
+                  <form style="display: inline-block;" action="{{ route('pertanyaan.destroy', $thread->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus?')">Hapus</button>
+                  </form>
+                </div>
+              @endif
+            </div>
+          </div>
+        @endforeach
+
+        {{ $threads->links() }}
+      @endif
+
     </div>
   </div>
 </div>

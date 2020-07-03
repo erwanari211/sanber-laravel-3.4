@@ -14,7 +14,7 @@ class PertanyaanController extends Controller
      */
     public function index()
     {
-        $threads = Thread::with('user')->latest()->paginate(10);
+        $threads = Thread::with('user')->withCount('replies')->latest()->paginate(10);
         return view('pertanyaan.index', compact('threads'));
     }
 
@@ -57,9 +57,10 @@ class PertanyaanController extends Controller
      * @param  \App\Models\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function show(Thread $thread)
+    public function show($threadId)
     {
-        //
+        $thread = Thread::with('user', 'replies')->withCount('replies')->findOrFail($threadId);
+        return view('pertanyaan.show', compact('thread'));
     }
 
     /**
@@ -68,9 +69,13 @@ class PertanyaanController extends Controller
      * @param  \App\Models\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function edit(Thread $thread)
+    public function edit($threadId)
     {
-        //
+        $thread = Thread::with('user', 'replies')->findOrFail($threadId);
+        if ($thread->user_id !== auth()->user()->id) {
+            return abort(403);
+        }
+        return view('pertanyaan.edit', compact('thread'));
     }
 
     /**
@@ -80,9 +85,24 @@ class PertanyaanController extends Controller
      * @param  \App\Models\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Thread $thread)
+    public function update(Request $request, $threadId)
     {
-        //
+        $thread = Thread::with('user', 'replies')->findOrFail($threadId);
+        if ($thread->user_id !== auth()->user()->id) {
+            return abort(403);
+        }
+
+        request()->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        $thread->title = request('title');
+        $thread->content = request('content');
+        $thread->save();
+
+        session()->flash('successMessage', 'Pertanyaan telah diperbarui');
+        return redirect()->back();
     }
 
     /**
@@ -91,8 +111,17 @@ class PertanyaanController extends Controller
      * @param  \App\Models\Thread  $thread
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Thread $thread)
+    public function destroy($threadId)
     {
-        //
+        $thread = Thread::with('user', 'replies')->findOrFail($threadId);
+        if ($thread->user_id !== auth()->user()->id) {
+            return abort(403);
+        }
+
+        $thread->replies()->delete();
+        $thread->delete();
+
+        session()->flash('successMessage', 'Pertanyaan telah dihapus');
+        return redirect()->back();
     }
 }
