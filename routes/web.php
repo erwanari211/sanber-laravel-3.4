@@ -28,5 +28,8 @@ Route::get('pertanyaan/{pertanyaan_id}/edit', 'PertanyaanController@edit')->name
 Route::put('pertanyaan/{pertanyaan_id}', 'PertanyaanController@update')->name('pertanyaan.update')->middleware('auth');
 Route::delete('pertanyaan/{pertanyaan_id}', 'PertanyaanController@destroy')->name('pertanyaan.destroy')->middleware('auth');
 
+Route::post('pertanyaan/{pertanyaan_id}/vote-up', 'PertanyaanController@voteUp')->name('pertanyaan.vote-up')->middleware('auth');
+Route::post('pertanyaan/{pertanyaan_id}/vote-down', 'PertanyaanController@voteDown')->name('pertanyaan.vote-down')->middleware('auth');
+
 Route::get('jawaban/{pertanyaan_id}', 'JawabanController@index')->name('jawaban.index');
 Route::post('jawaban/{pertanyaan_id}', 'JawabanController@store')->name('jawaban.store')->middleware('auth');

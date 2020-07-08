@@ -14,7 +14,8 @@ class PertanyaanController extends Controller
      */
     public function index()
     {
-        $threads = Thread::with('user')->withCount('replies')->latest()->paginate(10);
+        $threads = Thread::with('user', 'votes')->withCount('replies')->latest()->paginate(10);
+        // return $threads;
         return view('pertanyaan.index', compact('threads'));
     }
 
@@ -122,6 +123,22 @@ class PertanyaanController extends Controller
         $thread->delete();
 
         session()->flash('successMessage', 'Pertanyaan telah dihapus');
+        return redirect()->back();
+    }
+
+    public function voteUp($threadId)
+    {
+        $thread = Thread::with('user', 'replies')->findOrFail($threadId);
+        $thread->voteUp();
+
+        return redirect()->back();
+    }
+
+    public function voteDown($threadId)
+    {
+        $thread = Thread::with('user', 'replies')->findOrFail($threadId);
+        $thread->voteDown();
+
         return redirect()->back();
     }
 }

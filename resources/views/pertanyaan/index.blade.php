@@ -46,19 +46,54 @@
 
       @if (count($threads))
         @foreach ($threads as $thread)
+          @php
+            $voteUpId = 'form-vote-up-' . $thread->id;
+            $voteDownId = 'form-vote-down-' . $thread->id;
+          @endphp
           <div class="card mb-4">
             <div class="card-body">
               <div class="media mb-2">
                 <div class="mr-3 vote-container">
-                  <a class="vote-up">
-                    <i class="fa fa-caret-up"></i>
-                  </a>
-                  <span class="vote-count">
-                    {{ $thread->vote }}
-                  </span>
-                  <a class="vote-down">
-                    <i class="fa fa-caret-down"></i>
-                  </a>
+                  @if (auth()->check())
+                    <a class="vote-up {{ $thread->user_vote == 'VOTE UP' ? 'active' : '' }}"
+                      onclick="event.preventDefault();document.getElementById('{{ $voteUpId }}').submit();">
+                      <i class="fa fa-caret-up"></i>
+                    </a>
+                    <span class="vote-count">
+                      {{ $thread->vote }}
+                    </span>
+                    <a class="vote-down {{ $thread->user_vote == 'VOTE DOWN' ? 'active' : '' }}"
+                      onclick="event.preventDefault();document.getElementById('{{ $voteDownId }}').submit();">
+                      <i class="fa fa-caret-down"></i>
+                    </a>
+                  @else
+                    <a class="vote-up"
+                      data-toggle="modal" data-target="#modal-please-login">
+                      <i class="fa fa-caret-up"></i>
+                    </a>
+                    <span class="vote-count">
+                      {{ $thread->vote }}
+                    </span>
+                    <a class="vote-down"
+                      data-toggle="modal" data-target="#modal-please-login">
+                      <i class="fa fa-caret-down"></i>
+                    </a>
+                  @endif
+
+                  <form
+                    style="display: none;"
+                    id="{{ $voteUpId }}"
+                    action="{{ route('pertanyaan.vote-up', $thread->id) }}"
+                    method="POST">
+                    @csrf
+                  </form>
+                  <form
+                    style="display: none;"
+                    id="{{ $voteDownId }}"
+                    action="{{ route('pertanyaan.vote-down', $thread->id) }}"
+                    method="POST">
+                    @csrf
+                  </form>
                 </div>
 
                 <div class="media-body">
@@ -110,6 +145,26 @@
         {{ $threads->links() }}
       @endif
 
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-please-login" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Info</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Silahkan login untuk melakukan vote
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
     </div>
   </div>
 </div>
